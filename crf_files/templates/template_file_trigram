@@ -34,6 +34,8 @@ U28:%x[0,15]/%x[-1,15]
 #Synset PoS Bigrams
 U29:%x[0,1]/%x[0,15]
 
+B
+
 #Trigrams
 #Word trigrams
 U30:%x[-1,0]/%x[0,0]/%x[1,0]

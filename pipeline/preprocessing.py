@@ -1,5 +1,5 @@
-from utils import *
-from features import *
+from pipeline.utils import *
+from pipeline.features import *
 import pandas as pd
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
@@ -23,8 +23,8 @@ import time
 # results("laptops_output",names,'macro') -> (0.9029513246375992, 0.6900966164206738, 0.7667987488150763, None)
 
 # Trigrams + bigrams
-# results('restaurants_output_trigram',names, 'macro') -> (0.8592786364895817, 0.6983991981312165, 0.7541613554320875, None)
-# results('laptops_output_trigram',names, 'macro') -> (0.8788625224415275, 0.6364081205810861, 0.7142314066216047, None)
+# results('crf_files/output/laptops_output_trigram',names, 'macro') -> (0.872880958639522, 0.7285151165648993, 0.7837985679324929, None)
+# results('crf_files/output/restaurants_output_trigram',names, 'macro') -> (0.872880958639522, 0.7285151165648993, 0.7837985679324929, None)
 
 # Trigrams only
 # results('laptops_output_trigram_only',names, 'macro') -> (0.868452040752505, 0.631255439784431, 0.7056897568780429, None)
