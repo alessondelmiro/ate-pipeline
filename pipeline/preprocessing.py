@@ -6,6 +6,16 @@ from sklearn.metrics import precision_recall_fscore_support
 import os
 import time
 
+# TEM QUE FAZER DESSE JEITO A AVALIAÇÃO
+# old_g = [("eu", "O"), ("gosto", "O"), ("de", "O" ), ("pizza", "B"), ("calabresa", "I")]
+# g = [("eu", "O"), ("gosto", "O"), ("de", "O" ), ("pizza_calabresa", "BI")]
+# old_s = [(eu, O), (gosto, O), (de, O ), (pizza, B), (calabresa, O)]
+# s = [("eu", "O"), ("gosto", "O"), ("de", "O" ), ("pizza_calabresa", "BO")]
+
+# p = (g.intersection(s).count())/(s.count())
+# r = (g.intersection(s).count())/(g.count())
+# f = (2*p*r)/(p+r)
+
 # from preprocessing import *
 # pipeline("laptops", "train")
 # pipeline("laptops", "test")
@@ -30,7 +40,51 @@ import time
 # results('laptops_output_trigram_only',names, 'macro') -> (0.868452040752505, 0.631255439784431, 0.7056897568780429, None)
 # results('restaurants_output_trigram_only',names, 'macro') -> (0.84807052132276, 0.6849920016280456, 0.7387243611072428, None)
 
+# NEW RESULTS
+# new_results('./crf_files/output/laptops_output', names) -> (0.6553571428571429, 0.742914979757085, 0.6963946869070209)
+# new_results('./crf_files/output/restaurants_output', names) -> (0.7444649446494465, 0.8621794871794872, 0.7990099009900989)
 
+# names = ['token', 'pos', 'lemma', 'stem', 'isSuperlative', 'isComparative','lastFourNegative', 'positiveScore', 'negativeScore', 'nominalSubject', 'directObject', 'indirectObject', 'copula', 'conjunction', 'coordinatingConjunction', 'synonym1','synonym2', 'hypernymParent', 'hypernymGrandparent', 'antonym', 'isStopWord', 'isFrequentAte', 'iob', 'label']
+def new_results(url, names):
+    then = time.time()
+    dataframe = pd.read_csv(url, names=names, sep='\t')
+    golden, selected = golden_selected_terms(dataframe.iob.to_list(), dataframe.label.to_list())
+    now = time.time()
+    tp, fp, tn, fn = perf_measure(golden, selected)
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    fscore = 2 * ((precision * recall) / (precision + recall))
+    print("Execution time", now - then, "s")
+    return precision, recall, fscore
+
+def golden_selected_terms(old_g, old_s):
+    g = []
+    s = []
+    for i, item in enumerate(old_g):
+        if item.startswith("I"):
+            g[-1] += item
+            s[-1] += old_s[i]
+        else:
+            g.append(item)    
+            s.append(old_s[i])
+    return g, s
+
+def perf_measure(y_actual, y_hat):
+    TP = 0
+    FP = 0
+    TN = 0
+    FN = 0
+    for i in range(len(y_hat)): 
+        if y_actual[i]==y_hat[i] and y_actual[i]!="O":
+           TP += 1
+        if y_hat[i]!="O" and y_actual[i]!=y_hat[i]:
+           FP += 1
+        if y_actual[i]==y_hat[i]=="O":
+           TN += 1
+        if y_hat[i]=="O" and y_actual[i]!=y_hat[i]:
+           FN += 1
+    return(TP, FP, TN, FN)
+    
 # names = ['token', 'pos', 'lemma', 'stem', 'isSuperlative', 'isComparative','lastFourNegative', 'positiveScore', 'negativeScore', 'nominalSubject', 'directObject', 'indirectObject', 'copula', 'conjunction', 'coordinatingConjunction', 'synonym1','synonym2', 'hypernymParent', 'hypernymGrandparent', 'antonym', 'isStopWord', 'isFrequentAte', 'iob', 'label']
 def results(path, names, average = 'macro'):
     then = time.time()
