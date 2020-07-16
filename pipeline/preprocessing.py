@@ -53,6 +53,8 @@ def new_results(url, names):
     tp, fp, tn, fn = perf_measure(golden, selected)
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
+    # precision = len(intersection(golden,selected)) / len(selected)
+    # recall = len(intersection(golden,selected)) / len(golden)
     fscore = 2 * ((precision * recall) / (precision + recall))
     print("Execution time", now - then, "s")
     return precision, recall, fscore
@@ -69,21 +71,31 @@ def golden_selected_terms(old_g, old_s):
             s.append(old_s[i])
     return g, s
 
-def perf_measure(y_actual, y_hat):
+def perf_measure(golden, selected):
     TP = 0
     FP = 0
     TN = 0
     FN = 0
-    for i in range(len(y_hat)): 
-        if y_actual[i]==y_hat[i] and y_actual[i]!="O":
-           TP += 1
-        if y_hat[i]!="O" and y_actual[i]!=y_hat[i]:
-           FP += 1
-        if y_actual[i]==y_hat[i]=="O":
-           TN += 1
-        if y_hat[i]=="O" and y_actual[i]!=y_hat[i]:
-           FN += 1
+    for i in range(len(selected)): 
+        if golden[i] == selected[i]:
+            if "O" in selected[i]:
+                TN += 1
+            else:
+                TP += 1
+        else:
+            if "O" in selected[i]:
+                FN += 1
+            else:
+                FP += 1
     return(TP, FP, TN, FN)
+
+def intersection(golden, selected):
+    intersect = []
+    for i, item in enumerate(golden):
+        if item == selected[i]:
+            intersect.append(item)
+    return intersect
+    
     
 # names = ['token', 'pos', 'lemma', 'stem', 'isSuperlative', 'isComparative','lastFourNegative', 'positiveScore', 'negativeScore', 'nominalSubject', 'directObject', 'indirectObject', 'copula', 'conjunction', 'coordinatingConjunction', 'synonym1','synonym2', 'hypernymParent', 'hypernymGrandparent', 'antonym', 'isStopWord', 'isFrequentAte', 'iob', 'label']
 def results(path, names, average = 'macro'):
